@@ -535,6 +535,7 @@ class ImageLabelingApp:
         self.tmp_image = cv2.resize(self.adjusted_image, panel_size)
         if redraw_annotations:
             self.redraw_annotations()
+            show_image()
         else:
             self.show_image()
 
