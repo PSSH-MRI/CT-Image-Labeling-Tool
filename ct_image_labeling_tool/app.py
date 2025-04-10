@@ -3,7 +3,6 @@ from PIL import Image, ImageTk
 import cv2
 import numpy as np
 import tkinter as tk
-import os
 from tkinterdnd2 import DND_FILES
 
 from presentation.view.left_frame import LeftFrame
