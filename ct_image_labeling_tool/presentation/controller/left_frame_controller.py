@@ -132,6 +132,7 @@ class LeftFrameController:
 
         print(f"Annotations and masks saved to {json_file}")
         messagebox.showinfo("Save Complete", f"Annotations have been successfully saved to:\n{json_file}")
+        ## - TOOD: 수정 필요, File Listbox는 master에 없음
         self.master.file_listbox.delete(0, tk.END)
 
         for file in self.master.file_list:

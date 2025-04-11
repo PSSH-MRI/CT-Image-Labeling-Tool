@@ -16,8 +16,6 @@ from presentation.controller.center_frame_controller import CenterFrameControlle
 class ImageLabelingApp:
     def __init__(self, root):
         self.root = root
-        self.root.title("CT Image Labeling Tool")
-        self.root.geometry("1600x800")
 
         # 파일 및 이미지 관련 변수들
         self.file_list = []  # 로드된 파일 경로 목록
@@ -58,22 +56,23 @@ class ImageLabelingApp:
         self.center_frame = CenterFrame(root)
         self.center_controller = CenterFrameController(self, self.center_frame)
 
-        self.root.drop_target_register(DND_FILES)
-        self.root.dnd_bind('<<Drop>>', self.add_files_via_drag_and_drop)
-
-        self.root.bind("<Delete>", self.handle_delete_key)
         self.setup_shortcuts()  # 단축키 설정 추가
     
 
     def setup_shortcuts(self):
+        # Drag and Drop shortcut
+        self.root.drop_target_register(DND_FILES)
+        self.root.dnd_bind('<<Drop>>', self.add_files_via_drag_and_drop)
+
         # 단축키를 통해 모드 전환 (예: n: normal, e: ellipse, c: closed_curve, p: polygon)
+        self.root.bind("<Delete>", self.handle_delete_key)
         self.root.bind("<n>", lambda event: self.left_controller.set_drawing_mode("normal"))
         self.root.bind("<e>", lambda event: self.left_controller.set_drawing_mode("ellipse"))
         self.root.bind("<c>", lambda event: self.left_controller.set_drawing_mode("closed_curve"))
 
 
     def handle_delete_key(self, event):
-        x, y = event.x_root, event.y_root
+        x, y = self.root.winfo_pointerx(), self.root.winfo_pointery()
         widget_under = self.root.winfo_containing(x, y)
         if widget_under is None:
             return
@@ -82,6 +81,12 @@ class ImageLabelingApp:
         elif self.is_descendant(widget_under, self.center_frame.image_panel):
             self.delete_selected_annotation(event)
 
+    def is_descendant(self, widget, parent):
+        while widget is not None:
+            if widget == parent:
+                return True
+            widget = widget.master
+        return False
         
     def delete_selected_file(self, event):
         selection = self.right_frame.file_listbox.curselection()
@@ -125,7 +130,7 @@ class ImageLabelingApp:
             self.adjusted_image = self.left_controller.adjust_brightness_and_sharpness(self.current_image)
 
         panel_size = self.get_image_panel_size()
-        print(panel_size)
+
         self.tmp_image = cv2.resize(self.adjusted_image, panel_size)
 
         if redraw_annotations:
@@ -158,7 +163,7 @@ class ImageLabelingApp:
     def get_filter_slider_value(self):
         return self.left_controller.get_filter_slider_value()
 
-    def set_slider_value(self, value):
+    def set_slider_value(self, value={"brightness":50, "sharpness":0}):
         self.left_controller.set_slider_value(value)
 
     def redraw_annotations(self):

@@ -63,13 +63,13 @@ class RightFrameController:
                 self.master.current_file_path = self.master.file_list[0]
                 self.master.current_image = self.load_image(self.master.file_list[0])
                 self.adjusted_image = self.master.current_image.copy()
-                if self.current_file_path in self.master.file_settings:
+                if self.master.current_file_path in self.master.file_settings:
                     settings = self.master.file_settings[self.master.current_file_path]
                     self.master.set_slider_value({"brightness":settings["brightness"], "sharpness":settings["sharpness"]})
                 else:
                     self.master.set_slider_value()
                     pass
-                self.master.update_display(apply_adjustments=False, redraw_annotations=False)
+                self.master.update_display()
             else:
                 self.master.current_file_path = None
                 self.master.current_image = None

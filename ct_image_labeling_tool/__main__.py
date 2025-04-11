@@ -15,8 +15,13 @@ def init_tkdnd(root):
 
 def main():
     root = TkinterDnD.Tk()
+    root.title("CT Image Labeling Tool")
+    root.geometry("1600x800")
+
     init_tkdnd(root)
+
     ImageLabelingApp(root)
+    
     root.mainloop()
 
 if __name__ == "__main__":
