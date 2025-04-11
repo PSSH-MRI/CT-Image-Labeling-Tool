@@ -328,7 +328,7 @@ class ImageLabelingApp:
         scale_y = disp_h / orig_h
 
         temp_img = self.tmp_image.copy()
-        for name, data in self.annotations.items():
+        for _, data in self.annotations.items():
             color = data["color"]
             for shape_data in data["shapes"]:
                 shape = shape_data["shape"]
