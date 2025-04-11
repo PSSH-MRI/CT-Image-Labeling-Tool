@@ -361,7 +361,7 @@ class ImageLabelingApp:
         self.show_image()
 
     def clear_image_panel(self):
-        self.center_controller
+        self.center_controller.clear_image_panel()
 
     def add_files_via_drag_and_drop(self, event):
         new_files = self.root.tk.splitlist(event.data)
