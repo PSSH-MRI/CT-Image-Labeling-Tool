@@ -7,17 +7,75 @@ import cv2
 import numpy as np
 import pydicom
 
+from presentation.view.right_frame import RightFrame
+
 
 class RightFrameController:
-    def __init__(self, master, view):
+    def __init__(self, master, root):
         self.master = master
-        self.view = view
+        self.view = RightFrame(root)
         self.setup_ui_event()
+
 
     def setup_ui_event(self):
         self.view.annotation_listbox.bind("<Double-Button-1>", self.edit_annotation_name)
         self.view.file_listbox.bind("<<ListboxSelect>>", self.display_selected_image)
         self.view.load_files_btn.config(command=self.load_files)
+
+
+    @property
+    def get_file_listbox(self):
+        return self.view.file_listbox
+    
+
+    @property
+    def get_file_list_curselection(self):
+        return self.view.file_listbox.curselection()
+    
+
+    def get_listbox_size(self, type):
+        """
+        Get listbox size from view.
+
+        Args:
+            type (str): {"annotation" or "file"}
+
+        Returns:
+            int: The size of the selected type's listbox
+        """
+        if type == "annotation":
+            return self.view.annotation_listbox.size()
+        elif type == "file":
+            return self.view.file_listbox.size()
+        else:
+            print("The type is invalid. It can only be annotation or file. Please check your value again.")
+            return 0
+        
+
+    def get_annotation_from_listbox(self, index):
+        return self.view.annotation_listbox.get(index)
+    
+
+    def add_annotation_into_listbox(self, annotation_text):
+        self.view.annotation_listbox.insert(tk.END, annotation_text)
+
+
+    def delete_selected_file_from_listbox(self, index):
+        self.view.file_listbox.delete(index)
+
+
+    def delete_selected_annotation_from_listbox(self, first=None):
+        """
+        Delete annotation form listbox
+
+        Args:
+            index (int): {index} if index == None delete all
+        """
+        if first == None:
+            self.view.annotation_listbox.delete(0, tk.END)
+        else:
+            self.view.annotation_listbox.delete(first)
+
 
     def load_files(self):
         file_paths = filedialog.askopenfilenames(filetypes=[("Image files", "*.png;*.jpg;*.jpeg;*.dcm"), ("All files", "*.*")])
@@ -105,6 +163,7 @@ class RightFrameController:
                 self.view.annotation_listbox.insert(tk.END, name)
             self.master.update_display(apply_adjustments=False, redraw_annotations=True)
 
+
     def edit_annotation_name(self, event):
         selection = self.view.annotation_listbox.curselection()
         if not selection:
@@ -121,6 +180,7 @@ class RightFrameController:
             self.view.annotation_listbox.delete(index)
             self.view.annotation_listbox.insert(index, new_name)
             print(f"Annotation renamed from {old_name} to {new_name}")
+
 
     def display_selected_image(self, event):
         selection = self.view.file_listbox.curselection()
@@ -175,6 +235,7 @@ class RightFrameController:
         self.master.original_image_size = (img.shape[1], img.shape[0])
         return img
     
+
     def load_annotations_from_json(self, json_file):
         try:
             with open(json_file, "r") as file:

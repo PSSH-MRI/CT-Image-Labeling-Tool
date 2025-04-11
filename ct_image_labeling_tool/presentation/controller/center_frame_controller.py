@@ -2,11 +2,13 @@ import numpy as np
 import cv2
 from math import atan2, degrees, radians, sin, cos
 
+from presentation.view.center_frame import CenterFrame
+
 
 class CenterFrameController:
-    def __init__(self, master, view):
+    def __init__(self, master, root):
         self.master = master
-        self.view = view
+        self.view = CenterFrame(root)
         self.setup_ui_event()
 
     def setup_ui_event(self):
@@ -16,15 +18,23 @@ class CenterFrameController:
         self.view.image_panel.bind("<ButtonRelease-1>", self.end_drag_on_image)
         self.view.image_panel.bind("<Motion>", self.move_on_image)
 
+    @property
+    def get_image_panel(self):
+        return self.view.image_panel
+
+
     def get_image_panel_size(self):
         return (self.view.image_panel.winfo_width(), self.view.image_panel.winfo_height())
     
+
     def show_in_image_panel(self, img):
         self.view.image_panel.configure(image=img)
         self.view.image_panel.image = img
 
+
     def clear_image_panel(self):
         self.view.image_panel.configure(image=None)
+
 
     def click_on_image(self, event):
         if self.master.current_image is None:
@@ -93,6 +103,7 @@ class CenterFrameController:
                 print("Normal mode: move started")
                 return
             
+
     def drag_on_image(self, event):
             x, y = int(event.x), int(event.y)
             if self.master.drawing_mode == "ellipse" and self.master.is_drawing:
@@ -172,6 +183,7 @@ class CenterFrameController:
             self.master.normal_mod_start_mouse = None
             self.master.normal_mod_start_params = None
 
+
     def move_on_image(self, event):
         if self.master.tmp_image is None or self.master.adjusted_image is None:
             return
@@ -221,6 +233,7 @@ class CenterFrameController:
         else:
             self.master.update_display(apply_adjustments=False, redraw_annotations=True)
 
+
     def compute_ellipse_vertices(self, center, axes, angle):
         a, b = axes
         theta = radians(angle)
@@ -244,12 +257,14 @@ class CenterFrameController:
         poly = np.array(points, dtype=np.int32)
         return cv2.pointPolygonTest(poly, (x, y), False) >= 0
     
+
     def is_point_in_ellipse(self, x, y, center, axes):
         a, b = axes
         if a == 0 or b == 0:
             return False
         return ((x - center[0])**2)/(a**2) + ((y - center[1])**2)/(b**2) <= 1
     
+
     def point_in_rotated_ellipse(self, x, y, center, axes, angle):
         theta = radians(angle)
         dx = x - center[0]
@@ -258,6 +273,7 @@ class CenterFrameController:
         yr = -dx * sin(theta) + dy * cos(theta)
         a, b = axes
         return (xr**2)/(a**2) + (yr**2)/(b**2) <= 1
+    
     
     def highlight_selected_annotation(self, annotation_name, shape_index):
         try:

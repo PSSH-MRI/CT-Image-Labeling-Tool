@@ -9,15 +9,16 @@ import json
 import tkinter as tk
 from tkinter import messagebox
 
+from presentation.view.left_frame import LeftFrame
 
 """
 App 단위의 상위 클래스와 긴밀하게 소통하고, 뷰를 갱신
 View를 직접 갱신 or Master에 요청
 """
 class LeftFrameController:
-    def __init__(self, master, view):
+    def __init__(self, master, root):
         self.master = master
-        self.view = view
+        self.view = LeftFrame(root)
         self.setup_ui_event()
 
     def setup_ui_event(self):

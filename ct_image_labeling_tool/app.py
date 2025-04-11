@@ -5,10 +5,6 @@ import numpy as np
 import tkinter as tk
 from tkinterdnd2 import DND_FILES
 
-from presentation.view.left_frame import LeftFrame
-from presentation.view.right_frame import RightFrame
-from presentation.view.center_frame import CenterFrame
-
 from presentation.controller.left_frame_controller import LeftFrameController
 from presentation.controller.right_frame_controller import RightFrameController
 from presentation.controller.center_frame_controller import CenterFrameController
@@ -49,12 +45,9 @@ class ImageLabelingApp:
 
         self.is_updating_image = False
 
-        self.left_frame = LeftFrame(root)
-        self.left_controller = LeftFrameController(self, self.left_frame)
-        self.right_frame = RightFrame(root)
-        self.right_controller = RightFrameController(self, self.right_frame)
-        self.center_frame = CenterFrame(root)
-        self.center_controller = CenterFrameController(self, self.center_frame)
+        self.left_controller = LeftFrameController(self, root)
+        self.right_controller = RightFrameController(self, root)
+        self.center_controller = CenterFrameController(self, root)
 
         self.setup_shortcuts()  # 단축키 설정 추가
     
@@ -76,9 +69,9 @@ class ImageLabelingApp:
         widget_under = self.root.winfo_containing(x, y)
         if widget_under is None:
             return
-        if self.is_descendant(widget_under, self.right_frame.file_listbox):
+        if self.is_descendant(widget_under, self.right_controller.get_file_listbox):
             self.delete_selected_file(event)
-        elif self.is_descendant(widget_under, self.center_frame.image_panel):
+        elif self.is_descendant(widget_under, self.center_controller.get_image_panel):
             self.delete_selected_annotation(event)
 
     def is_descendant(self, widget, parent):
@@ -89,19 +82,19 @@ class ImageLabelingApp:
         return False
         
     def delete_selected_file(self, event):
-        selection = self.right_frame.file_listbox.curselection()
+        selection = self.right_controller.get_file_list_curselection
         if not selection:
             return
         index = selection[0]
         file_to_remove = self.file_list[index]
-        self.right_frame.file_listbox.delete(index)
+        self.right_controller.delete_selected_file_from_listbox(index)
         del self.file_list[index]
         print(f"Removed: {file_to_remove}")
         self.current_file_path = None
         self.current_image = None
         self.annotations.clear()
-        self.right_frame.annotation_listbox.delete(0, tk.END)
-        self.center_frame.image_panel.configure(image=None)
+        self.right_controller.delete_selected_annotation_from_listbox()
+        self.clear_image_panel()
         print("Image panel and annotation list cleared.")
 
 
@@ -110,9 +103,9 @@ class ImageLabelingApp:
             del self.annotations[self.selected_annotation]["shapes"][self.selected_shape_index]
             if not self.annotations[self.selected_annotation]["shapes"]:
                 del self.annotations[self.selected_annotation]
-                for i in range(self.right_frame.annotation_listbox.size()):
-                    if self.right_frame.annotation_listbox.get(i) == self.selected_annotation:
-                        self.right_frame.annotation_listbox.delete(i)
+                for i in range(self.right_controller.get_file_list_curselection("annotation")):
+                    if self.right_controller.get_annotation_from_listbox(i) == self.selected_annotation:
+                        self.right_controller.delete_selected_annotation_from_listbox(i)
                         break
             self.selected_annotation = None
             self.selected_shape_index = None
@@ -229,7 +222,7 @@ class ImageLabelingApp:
         button_font = ("Helvetica", 12)
         label_existing = tk.Label(popup, text="Select existing annotation (or leave blank):", font=label_font)
         label_existing.pack(pady=5)
-        existing = [self.right_frame.annotation_listbox.get(i) for i in range(self.right_frame.annotation_listbox.size())]
+        existing = [self.right_controller.get_annotation_from_listbox(i) for i in range(self.right_controller.get_listbox_size("annotation"))]
         if not existing:
             existing = ["No existing annotations"]
         selected_var = tk.StringVar(popup)
@@ -303,7 +296,7 @@ class ImageLabelingApp:
 
                 if annotation_text not in self.annotations:
                     self.annotations[annotation_text] = {"color": color, "shapes": []}
-                    self.right_frame.annotation_listbox.insert(tk.END, annotation_text)
+                    self.right_controller.add_annotation_into_listbox(annotation_text)
                 self.annotations[annotation_text]["shapes"].append(new_shape_data)
 
             popup.destroy()
