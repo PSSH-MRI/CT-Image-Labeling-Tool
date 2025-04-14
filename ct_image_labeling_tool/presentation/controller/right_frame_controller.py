@@ -26,12 +26,12 @@ class RightFrameController:
     @property
     def get_file_listbox(self):
         return self.view.file_listbox
-    
+
 
     @property
     def get_file_list_curselection(self):
         return self.view.file_listbox.curselection()
-    
+
 
     def get_listbox_size(self, type):
         """
@@ -52,16 +52,19 @@ class RightFrameController:
             return 0
         
 
+
     def get_annotation_from_listbox(self, index):
         return self.view.annotation_listbox.get(index)
-    
+
 
     def add_annotation_into_listbox(self, annotation_text, index=tk.END):
         self.view.annotation_listbox.insert(index, annotation_text)
 
+
     def add_file_into_listbox(self, content, at=tk.END):
         self.view.file_listbox.insert(at, content)
-    
+
+
     def delete_selected_file_from_listbox(self, first=None):
         """
         Delete annotation form listbox
@@ -233,7 +236,7 @@ class RightFrameController:
         else:
             print("No file selected from the listbox.")
 
-    
+
     def load_image(self, file_path):
         self.master.current_file_path = file_path
         if file_path.endswith(".dcm"):
@@ -245,7 +248,7 @@ class RightFrameController:
             img = cv2.imread(file_path, cv2.IMREAD_COLOR)
         self.master.original_image_size = (img.shape[1], img.shape[0])
         return img
-    
+
 
     def load_annotations_from_json(self, json_file):
         try:

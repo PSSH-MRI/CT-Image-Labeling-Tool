@@ -17,6 +17,7 @@ class LeftFrameController:
         self.view = LeftFrame(root)
         self.setup_ui_event()
 
+
     def setup_ui_event(self):
         # Utility buttons
         self.view.validation_btn.config(command=self.run_validation)
@@ -32,6 +33,7 @@ class LeftFrameController:
         self.view.sharpness_slider.config(command=self.update_adjusted_image)
         self.view.reset_btn.config(command=self.reset_adjustments)
 
+
     def run_validation(self):
         try:
             script_path = self.resource_path("validation.py")
@@ -46,13 +48,15 @@ class LeftFrameController:
             self.master.drawing_mode = None
             print("Annotation mode reset.")
 
+
     def resource_path(self, relative_path):
         try:
             base_path = sys._MEIPASS
         except AttributeError:
             base_path = os.path.abspath(".")
         return os.path.join(base_path, relative_path)
-    
+
+
     def save_labels_to_json(self):
         if not self.master.current_file_path:
             print("No file is currently loaded.")
@@ -135,9 +139,11 @@ class LeftFrameController:
             display_name = f"{file_name} ✅" if os.path.exists(json_file_path) else file_name
             self.master.add_file_into_listbox(display_name)
 
+
     def set_slider_value(self, value={"brightness":50, "sharpness":0}):
         self.view.brightness_slider.set(value["brightness"])
         self.view.sharpness_slider.set(value["sharpness"])
+
 
     def set_drawing_mode(self, mode):
         """
@@ -181,6 +187,7 @@ class LeftFrameController:
 
         print(f"Drawing mode set to: {mode}")
 
+
     def update_adjusted_image(self, _=None):
         self.master.update_display(apply_adjustments=True, redraw_annotations=True)
 
@@ -199,10 +206,12 @@ class LeftFrameController:
         return image
     
 
+
     def reset_adjustments(self):
         self.view.brightness_slider.set(50)
         self.view.sharpness_slider.set(0)
         self.update_adjusted_image()
+
 
     def get_filter_slider_value(self):
         brightness = self.view.brightness_slider.get()

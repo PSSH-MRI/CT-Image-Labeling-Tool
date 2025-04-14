@@ -13,12 +13,14 @@ class CenterFrameController:
         self.view = CenterFrame(root)
         self.setup_ui_event()
 
+
     def setup_ui_event(self):
         # Events
         self.view.image_panel.bind("<Button-1>", self.click_on_image)
         self.view.image_panel.bind("<B1-Motion>", self.drag_on_image)
         self.view.image_panel.bind("<ButtonRelease-1>", self.end_drag_on_image)
         self.view.image_panel.bind("<Motion>", self.move_on_image)
+
 
     @property
     def get_image_panel(self):
@@ -28,6 +30,7 @@ class CenterFrameController:
     def get_image_panel_size(self):
         return (self.view.image_panel.winfo_width(), self.view.image_panel.winfo_height())
     
+
 
     def show_in_image_panel(self, img):
         self.view.image_panel.configure(image=img)
@@ -105,6 +108,7 @@ class CenterFrameController:
                 print("Normal mode: move started")
                 return
             
+
 
     def drag_on_image(self, event):
             x, y = int(event.x), int(event.y)
@@ -283,14 +287,14 @@ class CenterFrameController:
     def is_point_in_polygon(self, x, y, points):
         poly = np.array(points, dtype=np.int32)
         return cv2.pointPolygonTest(poly, (x, y), False) >= 0
-    
+
 
     def is_point_in_ellipse(self, x, y, center, axes):
         a, b = axes
         if a == 0 or b == 0:
             return False
         return ((x - center[0])**2)/(a**2) + ((y - center[1])**2)/(b**2) <= 1
-    
+
 
     def point_in_rotated_ellipse(self, x, y, center, axes, angle):
         theta = radians(angle)
@@ -300,8 +304,8 @@ class CenterFrameController:
         yr = -dx * sin(theta) + dy * cos(theta)
         a, b = axes
         return (xr**2)/(a**2) + (yr**2)/(b**2) <= 1
-    
-    
+
+
     def highlight_selected_annotation(self, annotation_name, shape_index):
         try:
             disp_w, disp_h = self.master.get_image_panel_size()
