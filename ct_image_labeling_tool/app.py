@@ -202,8 +202,6 @@ class ImageLabelingApp:
         axes = (abs(end[0]-start[0])//2, abs(end[1]-start[1])//2)
         cv2.ellipse(self.tmp_image, center, axes, 0, 0, 360, (255,0,0), 1)
         self.show_image()
-
-    def prompt_annotation_text(self, points, shape):
         popup = tk.Toplevel(self.root)
         popup.title("Select or Enter Annotation Text")
         popup.geometry("400x250")
