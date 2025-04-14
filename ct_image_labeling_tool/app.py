@@ -8,6 +8,7 @@ from tkinterdnd2 import DND_FILES
 from presentation.controller.left_frame_controller import LeftFrameController
 from presentation.controller.right_frame_controller import RightFrameController
 from presentation.controller.center_frame_controller import CenterFrameController
+from presentation.annotation_save_popup import AnnotationSavePopup
 
 class ImageLabelingApp:
     def __init__(self, root):
@@ -96,6 +97,9 @@ class ImageLabelingApp:
         self.right_controller.delete_selected_annotation_from_listbox()
         self.clear_image_panel()
         print("Image panel and annotation list cleared.")
+
+    def delete_file_from_listbox(self, first=None):
+        self.right_controller.delete_selected_file_from_listbox(first)
 
 
     def delete_selected_annotation(self, event=None):
@@ -222,7 +226,7 @@ class ImageLabelingApp:
         button_font = ("Helvetica", 12)
         label_existing = tk.Label(popup, text="Select existing annotation (or leave blank):", font=label_font)
         label_existing.pack(pady=5)
-        existing = [self.right_controller.get_annotation_from_listbox(i) for i in range(self.right_controller.get_listbox_size("annotation"))]
+        existing = [self.get_annotation_from_listbox(i) for i in range(self.get_size_of_listbox("annotation"))]
         if not existing:
             existing = ["No existing annotations"]
         selected_var = tk.StringVar(popup)
@@ -296,7 +300,7 @@ class ImageLabelingApp:
 
                 if annotation_text not in self.annotations:
                     self.annotations[annotation_text] = {"color": color, "shapes": []}
-                    self.right_controller.add_annotation_into_listbox(annotation_text)
+                    self.add_annotation_into_listbox(annotation_text)
                 self.annotations[annotation_text]["shapes"].append(new_shape_data)
 
             popup.destroy()
@@ -310,6 +314,18 @@ class ImageLabelingApp:
         text_entry.bind("<Return>", lambda event: save_annotation())
         popup.bind("<Escape>", close_popup)
         popup.wait_window(popup)
+
+    def add_annotation_into_listbox(self, annotation_text):
+        self.right_controller.add_annotation_into_listbox(annotation_text)
+        
+    def add_file_into_listbox(self, content, at=tk.END):
+        self.right_controller.add_file_into_listbox(content=content, at=at)
+    
+    def get_size_of_listbox(self, type):
+        return self.right_controller.get_listbox_size(type)
+
+    def get_annotation_from_listbox(self, index):
+        return self.right_controller.get_annotation_from_listbox(index)
 
     def get_annotation_color(self, annotation_text):
         colors = [(255, 0, 0), (0, 255, 0), (0, 0, 255),

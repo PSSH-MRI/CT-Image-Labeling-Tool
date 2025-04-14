@@ -56,12 +56,23 @@ class RightFrameController:
         return self.view.annotation_listbox.get(index)
     
 
-    def add_annotation_into_listbox(self, annotation_text):
-        self.view.annotation_listbox.insert(tk.END, annotation_text)
+    def add_annotation_into_listbox(self, annotation_text, index=tk.END):
+        self.view.annotation_listbox.insert(index, annotation_text)
 
+    def add_file_into_listbox(self, content, at=tk.END):
+        self.view.file_listbox.insert(at, content)
+    
+    def delete_selected_file_from_listbox(self, first=None):
+        """
+        Delete annotation form listbox
 
-    def delete_selected_file_from_listbox(self, index):
-        self.view.file_listbox.delete(index)
+        Args:
+            index (int): {index} if index == None delete all
+        """
+        if first == None:
+            self.view.file_listbox.delete(0, tk.END)
+        else:
+            self.view.file_listbox.delete(first)
 
 
     def delete_selected_annotation_from_listbox(self, first=None):
@@ -91,7 +102,7 @@ class RightFrameController:
                     self.master.current_image = None
                     self.master.clear_image_panel()
 
-                    self.view.annotation_listbox.delete(0, tk.END)
+                    self.delete_selected_file_from_listbox()
                     print("[INFO] Unsaved annotations discarded.")
                 else:
                     print("[INFO] File load cancelled.")
@@ -102,9 +113,9 @@ class RightFrameController:
             self.master.current_image = None
             self.master.clear_image_panel()
 
-            self.view.annotation_listbox.delete(0, tk.END)
+            self.delete_selected_annotation_from_listbox()
             self.master.file_list = list(file_paths)
-            self.view.file_listbox.delete(0, tk.END)
+            self.delete_selected_file_from_listbox()
 
             for file in self.master.file_list:
                 file_name = os.path.basename(file)
@@ -115,7 +126,7 @@ class RightFrameController:
                     self.master.annotations_per_file[file] = self.master.annotations.copy()
                 else:
                     display_name = file_name
-                self.view.file_listbox.insert(tk.END, display_name)
+                self.add_file_into_listbox(display_name)
 
             if self.master.file_list:
                 self.master.current_file_path = self.master.file_list[0]
@@ -134,7 +145,7 @@ class RightFrameController:
                 self.master.annotations.clear()
                 self.master.clear_image_panel()
 
-                self.view.annotation_listbox.delete(0, tk.END)
+                self.delete_selected_annotation_from_listbox()
                 print("No files loaded.")
 
 
@@ -145,7 +156,7 @@ class RightFrameController:
                 file_name = os.path.basename(file)
                 json_file_path = os.path.splitext(file)[0] + ".json"
                 display_name = f"{file_name} ✅" if os.path.exists(json_file_path) else file_name
-                self.view.file_listbox.insert(tk.END, display_name)
+                self.add_file_into_listbox(display_name)
         print(f"Files added via drag-and-drop: {new_files}")
         
         if self.master.file_list and self.master.current_image is None:
@@ -158,7 +169,7 @@ class RightFrameController:
                 self.load_annotations_from_json(json_file_path)
             else:
                 self.master.annotations.clear()
-            self.view.annotation_listbox.delete(0, tk.END)
+            self.delete_selected_annotation_from_listbox()
             for name in self.master.annotations.keys():
                 self.view.annotation_listbox.insert(tk.END, name)
             self.master.update_display(apply_adjustments=False, redraw_annotations=True)
@@ -177,7 +188,7 @@ class RightFrameController:
                 messagebox.showerror("Error", "Annotation with this name already exists.")
                 return
             self.master.annotations[new_name] = self.master.annotations.pop(old_name)
-            self.view.annotation_listbox.delete(index)
+            self.delete_selected_annotation_from_listbox(index)
             self.view.annotation_listbox.insert(index, new_name)
             print(f"Annotation renamed from {old_name} to {new_name}")
 
@@ -209,7 +220,7 @@ class RightFrameController:
                     print(f"[INFO] Restored annotations from memory for {file_path}")
                 else:
                     self.master.annotations.clear()
-            self.view.annotation_listbox.delete(0, tk.END)
+            self.delete_selected_annotation_from_listbox()
             for name in self.master.annotations.keys():
                 self.view.annotation_listbox.insert(tk.END, name)
             if file_path in self.master.file_settings:

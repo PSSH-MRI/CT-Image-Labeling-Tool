@@ -3,11 +3,13 @@ import cv2
 from math import atan2, degrees, radians, sin, cos
 
 from presentation.view.center_frame import CenterFrame
+from presentation.annotation_save_popup import AnnotationSavePopup
 
 
 class CenterFrameController:
     def __init__(self, master, root):
         self.master = master
+        self.root = root
         self.view = CenterFrame(root)
         self.setup_ui_event()
 
@@ -164,18 +166,39 @@ class CenterFrameController:
         if self.master.drawing_mode == "ellipse" and self.master.is_drawing:
             end_point = (x,y)
             self.master.handle_ellipse(self.master.start_point, end_point)
-            self.master.prompt_annotation_text([self.master.start_point, end_point], shape="ellipse")
+            
+            AnnotationSavePopup(
+                root=self.root,
+                app=self.master,
+                points=[self.master.start_point, end_point],
+                shape="ellipse"
+            )
+            
             self.master.start_point = None
             self.master.is_drawing = False
         elif self.master.drawing_mode == "polygon" and len(self.master.points) > 1:
             self.master.points.append(self.master.points[0])
-            self.master.prompt_annotation_text(self.master.points, shape="polygon")
+            
+            AnnotationSavePopup(
+                root=self.root,
+                app=self.master,
+                points=self.master.points,
+                shape="polygon"
+            )
+            
             self.master.points = []
         elif self.master.drawing_mode == "closed_curve" and self.master.is_drawing:
             self.master.points.append((x,y))
             if len(self.master.points) > 1 and self.master.points[0] != self.master.points[-1]:
                 self.master.points.append(self.master.points[0])
-            self.master.prompt_annotation_text(self.master.points, shape="closed_curve")
+            
+            AnnotationSavePopup(
+                root=self.root,
+                app=self.master,
+                points=self.master.points,
+                shape="closed_curve"
+            )
+            
             self.master.is_drawing = False
         elif self.master.drawing_mode == "normal":
             self.master.normal_mod_mode = None

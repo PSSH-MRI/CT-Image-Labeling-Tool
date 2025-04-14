@@ -11,10 +11,6 @@ from tkinter import messagebox
 
 from presentation.view.left_frame import LeftFrame
 
-"""
-App 단위의 상위 클래스와 긴밀하게 소통하고, 뷰를 갱신
-View를 직접 갱신 or Master에 요청
-"""
 class LeftFrameController:
     def __init__(self, master, root):
         self.master = master
@@ -133,14 +129,14 @@ class LeftFrameController:
 
         print(f"Annotations and masks saved to {json_file}")
         messagebox.showinfo("Save Complete", f"Annotations have been successfully saved to:\n{json_file}")
-        ## - TOOD: 수정 필요, File Listbox는 master에 없음
-        self.master.file_listbox.delete(0, tk.END)
+        
+        self.master.delete_file_from_listbox()
 
         for file in self.master.file_list:
             file_name = os.path.basename(file)
             json_file_path = os.path.splitext(file)[0] + ".json"
             display_name = f"{file_name} ✅" if os.path.exists(json_file_path) else file_name
-            self.master.file_listbox.insert(tk.END, display_name)
+            self.master.add_file_into_listbox(display_name)
 
     def set_slider_value(self, value={"brightness":50, "sharpness":0}):
         self.view.brightness_slider.set(value["brightness"])
