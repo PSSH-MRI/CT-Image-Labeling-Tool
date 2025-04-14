@@ -18,16 +18,16 @@ class LeftFrameController:
         self.setup_ui_event()
 
     def setup_ui_event(self):
-        # 유틸 버튼
+        # Utility buttons
         self.view.validation_btn.config(command=self.run_validation)
         self.view.save_json_btn.config(command=self.save_labels_to_json)
 
-        # 모드 전환
+        # Mode selection buttons
         self.view.ellipse_btn.config(command=lambda: self.set_drawing_mode("ellipse"))
         self.view.normal_btn.config(command=lambda: self.set_drawing_mode("normal"))
         self.view.closed_curve_btn.config(command=lambda: self.set_drawing_mode("closed_curve"))
 
-        # Image Filtering
+        # Image filtering controls
         self.view.brightness_slider.config(command=self.update_adjusted_image)
         self.view.sharpness_slider.config(command=self.update_adjusted_image)
         self.view.reset_btn.config(command=self.reset_adjustments)
@@ -74,7 +74,6 @@ class LeftFrameController:
         for name, data in self.master.annotations.items():
             for shape_data in data["shapes"]:
                 if shape_data["shape"] == "ellipse" and "center" in shape_data:
-                    # 만약 mask 키가 없다면 생성
                     if "mask" not in shape_data:
                         mask = np.zeros((orig_h, orig_w), dtype=np.uint8)
                         cv2.ellipse(mask, tuple(map(int, shape_data["center"])),
@@ -92,21 +91,19 @@ class LeftFrameController:
                         "orig_size": shape_data["image_size"]
                     }
                 else:
-                    # polygon, closed_curve, 또는 ellipse 구 방식인 경우
                     ann_size = shape_data["image_size"]
                     scale_x = orig_w / ann_size[0]
                     scale_y = orig_h / ann_size[1]
-                    # 만약 "points" 키가 없는 경우(ellipse의 구 방식) mask를 생성하지 않음
+                    
                     if "points" in shape_data:
                         converted_points = [(int(pt[0] * scale_x), int(pt[1] * scale_y)) for pt in shape_data["points"]]
                     else:
                         converted_points = []
-                    # mask 생성
+
                     mask = np.zeros((orig_h, orig_w), dtype=np.uint8)
                     if shape_data["shape"] in ["polygon", "closed_curve"]:
                         cv2.fillPoly(mask, [np.array(converted_points, dtype=np.int32)], color=255)
                     else:
-                        # ellipse 구 방식: 두 점으로부터 생성
                         pts = shape_data.get("points", [])
                         if pts:
                             center_tmp = ((pts[0][0] + pts[1][0]) / 2, (pts[0][1] + pts[1][1]) / 2)
@@ -143,17 +140,31 @@ class LeftFrameController:
         self.view.sharpness_slider.set(value["sharpness"])
 
     def set_drawing_mode(self, mode):
+        """
+        Set the current drawing mode and update UI button states accordingly.
+
+        Parameters:
+            mode (str): The drawing mode to activate. 
+                        Valid options are "closed_curve", "ellipse", and "normal".
+
+        Behavior:
+            - Resets drawing state and temporary points.
+            - Highlights the selected mode button in the UI.
+            - If mode is "normal", resets parameters related to object modification.
+        """
+        
+        # Update drawing mode and reset drawing state
         self.master.drawing_mode = mode
         self.master.points = []
         self.master.is_drawing = False
 
-        # 모든 버튼을 "raised" 상태로 초기화
+        # Reset all mode buttons to default (raised) state
         self.view.closed_curve_btn.config(relief="raised", bg="SystemButtonFace")
         self.view.ellipse_btn.config(relief="raised", bg="SystemButtonFace")
         self.view.normal_btn.config(relief="raised", bg="SystemButtonFace")
 
 
-        # 선택된 모드의 버튼을 "sunken" 상태로 변경
+        # Highlight the selected mode button
         if mode == "closed_curve":
             self.view.closed_curve_btn.config(relief="sunken", bg="lightblue")
         elif mode == "ellipse":
@@ -161,11 +172,13 @@ class LeftFrameController:
         elif mode == "normal":
             self.view.normal_btn.config(relief="sunken", bg="lightblue")
 
+        # Reset normal mode parameters when switching to normal mode
         if mode == "normal":
             self.master.normal_mod_mode = None
             self.master.normal_mod_vertex = None
             self.master.normal_mod_start_mouse = None
             self.master.normal_mod_start_params = None
+
         print(f"Drawing mode set to: {mode}")
 
     def update_adjusted_image(self, _=None):

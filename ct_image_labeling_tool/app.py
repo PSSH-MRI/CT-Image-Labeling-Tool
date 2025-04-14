@@ -14,51 +14,52 @@ class ImageLabelingApp:
     def __init__(self, root):
         self.root = root
 
-        # 파일 및 이미지 관련 변수들
-        self.file_list = []  # 로드된 파일 경로 목록
+        # File and image variables
+        self.file_list = []  # Loaded file paths
         self.current_file_path = None
-        self.current_image = None  # 원본 이미지
-        self.adjusted_image = None  # 명암/선명도 조정 후 이미지
-        self.tmp_image = None  # 화면에 표시할 임시 이미지
+        self.current_image = None  # Original image
+        self.adjusted_image = None  # Adjusted for brightness/sharpness
+        self.tmp_image = None  # Temporary image for display
         self.original_image_size = None
         self.current_image_size = None
 
-        # Annotation 관련 변수들
-        # { annotation_name: {"color": (B,G,R), "shapes": [shape_data, ...] } }
-        self.annotations = {}
-        self.annotations_per_file = {}
-        self.file_settings = {}  # 파일별 슬라이더 설정 저장
-        # drawing_mode: "polygon", "closed_curve", "ellipse"(생성 모드) 또는 "normal"(수정 모드)
-        self.drawing_mode = None
-        self.points = []  # 생성 모드 시 임시 점 리스트
+        # Annotations
+        self.annotations = {}  # {name: {"color": (B, G, R), "shapes": [...]}}
+        self.annotations_per_file = {}  # Annotations by file
+        self.file_settings = {}  # Per-file slider settings
+        self.drawing_mode = None  # "polygon", "ellipse", or "normal"
+        self.points = []  # Temporary points when drawing
         self.selected_annotation = None
         self.selected_shape_index = None
 
-        # Normal 모드(수정) 관련 변수
-        self.normal_mod_mode = None  # "move", "resize", "rotate" 또는 None
-        self.normal_mod_vertex = None  # "top", "bottom", "left", "right" (resize 시)
-        self.normal_mod_start_mouse = None  # 수정 시작 시 마우스 좌표 (x,y)
-        self.normal_mod_start_params = None  # 수정 시작 시 타원 파라미터 (center, axes, angle)
+        # Edit (normal) mode
+        self.normal_mod_mode = None  # "move", "resize", "rotate"
+        self.normal_mod_vertex = None  # "top", "bottom", etc.
+        self.normal_mod_start_mouse = None
+        self.normal_mod_start_params = None  # (center, axes, angle)
 
-        # 생성(그리기) 관련 변수
+        # Drawing mode
         self.is_drawing = False
-        self.start_point = None  # 타원 생성 시작점
+        self.start_point = None  # For ellipse drawing
 
+        
+        # Image update flag
         self.is_updating_image = False
 
         self.left_controller = LeftFrameController(self, root)
         self.right_controller = RightFrameController(self, root)
         self.center_controller = CenterFrameController(self, root)
 
-        self.setup_shortcuts()  # 단축키 설정 추가
+        self.setup_shortcuts()
     
 
     def setup_shortcuts(self):
-        # Drag and Drop shortcut
+        # Enable drag and drop support
         self.root.drop_target_register(DND_FILES)
         self.root.dnd_bind('<<Drop>>', self.add_files_via_drag_and_drop)
 
-        # 단축키를 통해 모드 전환 (예: n: normal, e: ellipse, c: closed_curve, p: polygon)
+        # Keyboard shortcuts for mode switching
+        # n: normal, e: ellipse, c: closed curve, p: polygon
         self.root.bind("<Delete>", self.handle_delete_key)
         self.root.bind("<n>", lambda event: self.left_controller.set_drawing_mode("normal"))
         self.root.bind("<e>", lambda event: self.left_controller.set_drawing_mode("ellipse"))

@@ -1,9 +1,5 @@
 import tkinter as tk
 
-
-"""
-Widget Type의 프로퍼티를 가지고 있고, 뷰 갱신 등의 동작만 할 수 있도록
-"""
 class LeftFrame(tk.Frame):
     def __init__(self, master):
         super().__init__(master)

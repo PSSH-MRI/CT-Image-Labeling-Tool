@@ -14,7 +14,7 @@ class CenterFrameController:
         self.setup_ui_event()
 
     def setup_ui_event(self):
-        # 이벤트
+        # Events
         self.view.image_panel.bind("<Button-1>", self.click_on_image)
         self.view.image_panel.bind("<B1-Motion>", self.drag_on_image)
         self.view.image_panel.bind("<ButtonRelease-1>", self.end_drag_on_image)
@@ -53,9 +53,10 @@ class CenterFrameController:
             if self.master.selected_annotation is None:
                 return
             shape_data = self.master.annotations[self.master.selected_annotation]["shapes"][self.master.selected_shape_index]
+            
             if shape_data["shape"] != "ellipse":
                 return
-            # 만약 "center"가 없다면, 원래 두 점으로부터 계산 (수정 모드 시작 전에 원본 좌표로 변환)
+            
             if "center" not in shape_data:
                 pts = shape_data["points"]
                 center = ((pts[0][0] + pts[1][0]) / 2, (pts[0][1] + pts[1][1]) / 2)
@@ -64,40 +65,39 @@ class CenterFrameController:
                 shape_data["center"] = center
                 shape_data["axes"] = axes
                 shape_data["angle"] = angle
-            # 기존 원본 좌표 (annotation 데이터는 원본 기준)
+
             orig_center, orig_axes, angle = shape_data["center"], shape_data["axes"], shape_data["angle"]
-            # 화면 scale factor: 원본 -> display
             disp_w, disp_h = self.master.get_image_panel_size()
             orig_w, orig_h = self.master.original_image_size
             scale_x = disp_w / orig_w
             scale_y = disp_h / orig_h
-            # 변환한 디스플레이 좌표
             disp_center = (orig_center[0] * scale_x, orig_center[1] * scale_y)
             disp_axes = (orig_axes[0] * scale_x, orig_axes[1] * scale_y)
-            # 디스플레이 좌표 기준으로 타원 꼭짓점 계산
             vertices = self.compute_ellipse_vertices(disp_center, disp_axes, angle)
             click_pt = np.array([x, y])
             threshold = 10
+            
             for vertex_label, vertex in vertices.items():
                 dist = np.linalg.norm(click_pt - np.array(vertex))
                 if dist < threshold:
                     self.master.normal_mod_mode = "resize"
                     self.master.normal_mod_vertex = vertex_label
-                    # 저장하는 start 값은 원본 좌표
+
                     self.master.normal_mod_start_mouse = (x, y)
                     self.master.normal_mod_start_params = (orig_center, orig_axes, angle)
                     print(f"Normal mode: resize started at {vertex_label}")
                     return
-            # Rotate 모드: top vertex 근처 (디스플레이 좌표)
+
             top_vertex = vertices["top"]
             dist_top = np.linalg.norm(click_pt - np.array(top_vertex))
+            
             if threshold < dist_top < 2 * threshold:
                 self.master.normal_mod_mode = "rotate"
                 self.master.normal_mod_start_mouse = (x, y)
                 self.master.normal_mod_start_params = (orig_center, orig_axes, angle)
                 print("Normal mode: rotate started")
                 return
-            # Move 모드: 클릭이 타원 내부 (디스플레이 좌표)
+
             if self.point_in_rotated_ellipse(x, y, disp_center, disp_axes, angle):
                 self.master.normal_mod_mode = "move"
                 self.master.normal_mod_start_mouse = (x, y)
@@ -108,6 +108,7 @@ class CenterFrameController:
 
     def drag_on_image(self, event):
             x, y = int(event.x), int(event.y)
+            
             if self.master.drawing_mode == "ellipse" and self.master.is_drawing:
                 tmp_copy = self.master.tmp_image.copy()
                 end_point = (x, y)
@@ -121,7 +122,6 @@ class CenterFrameController:
                 cv2.polylines(tmp_copy, [np.array(self.master.points)], isClosed=False, color=(0, 255, 255), thickness=1)
                 self.master.show_image_with_tmp(tmp_copy)
             elif self.master.drawing_mode == "normal" and self.master.normal_mod_mode is not None:
-                # 원본 좌표 기준으로 수정: 화면에서 이동한 delta를 원본 좌표 delta로 변환
                 disp_w, disp_h = self.master.get_image_panel_size()
                 orig_w, orig_h = self.master.original_image_size
                 scale_x = orig_w / disp_w
@@ -147,7 +147,6 @@ class CenterFrameController:
                     new_axes = tuple(new_axes)
                     new_angle = init_angle
                 elif self.master.normal_mod_mode == "rotate":
-                    # 회전의 경우는 화면 좌표에서 계산한 각도 차이를 원본 각도에 더합니다.
                     angle_start = degrees(atan2(self.master.normal_mod_start_mouse[1] - (init_center[1] / scale_y),
                                                 self.master.normal_mod_start_mouse[0] - (init_center[0] / scale_x)))
                     angle_now = degrees(atan2(y - (init_center[1] * (disp_h/orig_h)),
@@ -155,8 +154,10 @@ class CenterFrameController:
                     new_angle = init_angle + (angle_now - angle_start)
                     new_center = init_center
                     new_axes = init_axes
+                    
                 updated_data = {"shape": "ellipse", "center": new_center, "axes": new_axes, "angle": new_angle,
                                 "image_size": self.master.original_image_size}
+                
                 self.master.annotations[self.master.selected_annotation]["shapes"][self.master.selected_shape_index] = updated_data
                 self.master.update_display()
 
@@ -210,10 +211,12 @@ class CenterFrameController:
     def move_on_image(self, event):
         if self.master.tmp_image is None or self.master.adjusted_image is None:
             return
+        
         panel_w, panel_h = self.master.get_image_panel_size()
         cursor_x, cursor_y = int(event.x), int(event.y)
         new_sel_name = None
         new_sel_index = None
+        
         for name, data in self.master.annotations.items():
             for idx, shape_data in enumerate(data["shapes"]):
                 shape = shape_data["shape"]
@@ -249,6 +252,7 @@ class CenterFrameController:
                         break
             if new_sel_name:
                 break
+            
         if new_sel_name is not None:
             self.master.selected_annotation = new_sel_name
             self.master.selected_shape_index = new_sel_index
@@ -300,13 +304,11 @@ class CenterFrameController:
     
     def highlight_selected_annotation(self, annotation_name, shape_index):
         try:
-            # 원본 -> 디스플레이 scale factor 계산
             disp_w, disp_h = self.master.get_image_panel_size()
             orig_w, orig_h = self.master.original_image_size
             scale_x = disp_w / orig_w
             scale_y = disp_h / orig_h
 
-            # base_img는 현재 조정된 이미지(self.adjusted_image)를 디스플레이 크기로 리사이즈한 이미지입니다.
             base_img = cv2.resize(self.master.adjusted_image, (disp_w, disp_h))
             overlay = base_img.copy()
             color = self.master.annotations[annotation_name]["color"]
@@ -334,18 +336,15 @@ class CenterFrameController:
                 mask = np.zeros(overlay.shape, dtype=np.uint8)
                 cv2.fillPoly(mask, [np.array(disp_pts, dtype=np.int32)], (255, 255, 255))
 
-            # 컬러 오버레이 생성
             color_overlay = np.full(overlay.shape, color, dtype=np.uint8)
             mask_gray = cv2.cvtColor(mask, cv2.COLOR_BGR2GRAY)
             mask_norm = mask_gray.astype(float) / 255.0
 
-            # base_img를 그대로 유지하면서 하이라이트 효과 적용
             highlighted = base_img.copy()
             for c in range(3):
                 highlighted[:, :, c] = highlighted[:, :, c] * (1 - 0.3 * mask_norm) + color_overlay[:, :, c] * (
                             0.3 * mask_norm)
 
-            # self.tmp_image를 직접 수정하지 않고, highlighted 이미지를 화면에 표시합니다.
             self.master.show_image_with_tmp(highlighted)
         except Exception as e:
             print(f"[DEBUG] Error in highlight_selected_annotation: {e}")
