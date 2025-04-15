@@ -1,7 +1,7 @@
 import tkinter as tk
 from tkinterdnd2 import TkinterDnD
 
-from app import ImageLabelingApp
+from app.app import ImageLabelingApp
 
 def init_tkdnd(root):
     try:

@@ -36,7 +36,7 @@ class LeftFrameController:
 
     def run_validation(self):
         try:
-            script_path = self.resource_path("validation.py")
+            script_path = self.resource_path("./service/validation.py")
             subprocess.run([sys.executable, script_path], check=True)
             print("Validation completed successfully.")
         except subprocess.CalledProcessError as e:
