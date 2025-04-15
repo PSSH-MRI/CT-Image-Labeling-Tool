@@ -39,6 +39,7 @@ class CenterFrameController:
 
     def clear_image_panel(self):
         self.view.image_panel.configure(image=None)
+        self.view.image_panel.image = None
 
 
     def click_on_image(self, event):

@@ -1,14 +1,12 @@
-import base64
 from PIL import Image, ImageTk
 import cv2
 import numpy as np
 import tkinter as tk
-from tkinterdnd2 import DND_FILES
 
 from presentation.controller.left_frame_controller import LeftFrameController
 from presentation.controller.right_frame_controller import RightFrameController
 from presentation.controller.center_frame_controller import CenterFrameController
-from presentation.annotation_save_popup import AnnotationSavePopup
+from app.shortcuts import setup_shortcuts
 
 class ImageLabelingApp:
     def __init__(self, root):
@@ -44,39 +42,7 @@ class ImageLabelingApp:
         self.right_controller = RightFrameController(self, root)
         self.center_controller = CenterFrameController(self, root)
 
-        self.setup_shortcuts()
-    
-
-    def setup_shortcuts(self):
-        # Enable drag and drop support
-        self.root.drop_target_register(DND_FILES)
-        self.root.dnd_bind('<<Drop>>', self.add_files_via_drag_and_drop)
-
-        # Keyboard shortcuts for mode switching
-        # n: normal, e: ellipse, c: closed curve, p: polygon
-        self.root.bind("<Delete>", self.handle_delete_key)
-        self.root.bind("<n>", lambda event: self.left_controller.set_drawing_mode("normal"))
-        self.root.bind("<e>", lambda event: self.left_controller.set_drawing_mode("ellipse"))
-        self.root.bind("<c>", lambda event: self.left_controller.set_drawing_mode("closed_curve"))
-
-
-    def handle_delete_key(self, event):
-        x, y = self.root.winfo_pointerx(), self.root.winfo_pointery()
-        widget_under = self.root.winfo_containing(x, y)
-        if widget_under is None:
-            return
-        if self.is_descendant(widget_under, self.right_controller.get_file_listbox):
-            self.delete_selected_file(event)
-        elif self.is_descendant(widget_under, self.center_controller.get_image_panel):
-            self.delete_selected_annotation(event)
-
-
-    def is_descendant(self, widget, parent):
-        while widget is not None:
-            if widget == parent:
-                return True
-            widget = widget.master
-        return False
+        setup_shortcuts(self)
     
     
     def update_display(self, apply_adjustments=True, redraw_annotations=True):
@@ -174,7 +140,7 @@ class ImageLabelingApp:
             del self.annotations[self.selected_annotation]["shapes"][self.selected_shape_index]
             if not self.annotations[self.selected_annotation]["shapes"]:
                 del self.annotations[self.selected_annotation]
-                for i in range(self.right_controller.get_file_list_curselection("annotation")):
+                for i in range(self.right_controller.get_listbox_size("annotation")):
                     if self.right_controller.get_annotation_from_listbox(i) == self.selected_annotation:
                         self.right_controller.delete_selected_annotation_from_listbox(i)
                         break
