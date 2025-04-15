@@ -21,12 +21,10 @@ class ImageLabelingApp:
         self.adjusted_image = None  # Adjusted for brightness/sharpness
         self.tmp_image = None  # Temporary image for display
         self.original_image_size = None
-        self.current_image_size = None
 
         # Annotations
         self.annotations = {}  # {name: {"color": (B, G, R), "shapes": [...]}}
         self.annotations_per_file = {}  # Annotations by file
-        self.file_settings = {}  # Per-file slider settings
         self.drawing_mode = None  # "polygon", "ellipse", or "normal"
         self.points = []  # Temporary points when drawing
         self.selected_annotation = None
@@ -41,10 +39,6 @@ class ImageLabelingApp:
         # Drawing mode
         self.is_drawing = False
         self.start_point = None  # For ellipse drawing
-
-        
-        # Image update flag
-        self.is_updating_image = False
 
         self.left_controller = LeftFrameController(self, root)
         self.right_controller = RightFrameController(self, root)

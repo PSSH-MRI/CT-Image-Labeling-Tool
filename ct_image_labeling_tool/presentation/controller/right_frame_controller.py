@@ -13,6 +13,8 @@ from presentation.view.right_frame import RightFrame
 class RightFrameController:
     def __init__(self, master, root):
         self.master = master
+        self.file_settings = {}  # Per-file slider settings
+        
         self.view = RightFrame(root)
         self.setup_ui_event()
 
@@ -135,8 +137,8 @@ class RightFrameController:
                 self.master.current_file_path = self.master.file_list[0]
                 self.master.current_image = self.load_image(self.master.file_list[0])
                 self.adjusted_image = self.master.current_image.copy()
-                if self.master.current_file_path in self.master.file_settings:
-                    settings = self.master.file_settings[self.master.current_file_path]
+                if self.master.current_file_path in self.file_settings:
+                    settings = self.file_settings[self.master.current_file_path]
                     self.master.set_slider_value({"brightness":settings["brightness"], "sharpness":settings["sharpness"]})
                 else:
                     self.master.set_slider_value()
@@ -201,7 +203,7 @@ class RightFrameController:
         if selection:
             file_path = self.master.file_list[selection[0]]
             if self.master.current_file_path:
-                self.master.file_settings[self.master.current_file_path] = self.master.get_filter_slider_value()
+                self.file_settings[self.master.current_file_path] = self.master.get_filter_slider_value()
                 self.master.annotations_per_file[self.master.current_file_path] = self.master.annotations.copy()
             self.master.current_file_path = file_path
             self.master.current_image = self.load_image(file_path)
@@ -226,8 +228,8 @@ class RightFrameController:
             self.delete_selected_annotation_from_listbox()
             for name in self.master.annotations.keys():
                 self.view.annotation_listbox.insert(tk.END, name)
-            if file_path in self.master.file_settings:
-                settings = self.master.file_settings[file_path]
+            if file_path in self.file_settings:
+                settings = self.file_settings[file_path]
                 self.master.set_slider_value({"brightness":settings["brightness"], "sharpness":settings["sharpness"]})
             else:
                 self.master.set_slider_value()
