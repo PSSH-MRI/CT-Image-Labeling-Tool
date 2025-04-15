@@ -2,8 +2,8 @@ import numpy as np
 import cv2
 from math import atan2, degrees, radians, sin, cos
 
-from presentation.view.center_frame import CenterFrame
-from presentation.annotation_save_popup import AnnotationSavePopup
+from view.center_frame import CenterFrame
+from controller.annotation_save_popup import AnnotationSavePopup
 
 
 class CenterFrameController:
