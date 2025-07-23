@@ -79,7 +79,7 @@ A lightweight annotation tool designed for labeling CT axial L3 images for machi
 
 1.  **Run the application:**
     ```bash
-    python -m ct_image_labeling_tool
+    python ct_image_labeling_tool/__main__.py
     ```
 
 2.  **Load Images:**
