@@ -101,7 +101,7 @@ A lightweight annotation tool designed for labeling CT axial L3 images for machi
     *   **Editing and Deleting Annotations:**
         *   Switch to **Normal Mode** (`n`).
         *   **Select:** Hover over an annotation to see it highlighted. Click to select it.
-        *   **Move:** Click and drag the selected annotation to move it.
+        *   **Move:** For ellipses, click and drag the selected annotation to move it.
         *   **Resize:** For ellipses, drag the corner handles to resize the shape.
         *   **Rotate:** For ellipses, drag the area near the top handle to rotate it.
         *   **Delete an Annotation:** Select an annotation on the image and press the `Delete` key to remove it.
