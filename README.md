@@ -4,7 +4,7 @@ A lightweight annotation tool designed for labeling CT axial L3 images for machi
 
 ## Features
 
-*   **DICOM Image Viewer:** Load and display DICOM (.dcm) files, as well as standard image formats (PNG, JPG).
+*   **DICOM Image Viewer:** Load and display DICOM (.dcm) files.
 *   **Image Adjustments:** Interactively adjust brightness and sharpness to enhance the visibility of CT images, making it easier to identify anatomical structures.
 *   **Advanced Annotation Tools:**
     *   **Multiple Drawing Modes:** Create annotations using ellipses and closed curves (free-form polygons).
